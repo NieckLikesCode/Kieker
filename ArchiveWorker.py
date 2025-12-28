@@ -1,0 +1,91 @@
+import asyncio
+import logging
+from asyncio import Queue
+import os
+from dataclasses import dataclass
+
+import discord
+
+import config
+from Clip import Clip
+from Database import Database
+from utils import text_utils, video_utils
+
+@dataclass
+class Entry:
+    clip: Clip
+    file_path: str
+
+logger = logging.getLogger(__name__)
+discord_file_limit = 10000  # in kB
+
+class ArchiveWorker:
+    def __init__(self, upload_queue: Queue, database: Database, bot: discord.Client, verbose: bool):
+        self.upload_queue = upload_queue
+        self.database = database
+        self.bot = bot
+        self.verbose = verbose
+
+    async def start(self):
+        """
+        Starts the ArchiveWorker
+        """
+        await self.bot.wait_until_ready()
+
+        while True:
+            archive_entry = await self.upload_queue.get()
+
+            clip = archive_entry.clip
+            file_path = archive_entry.file_path
+
+            if self.verbose:
+                logger.info(f'Initiating archiving process of {clip.title}')
+
+            message = text_utils.format_placeholder_by_clip(config.archive_message, clip)
+
+            attachment_path = None
+
+            file_size = os.path.getsize(file_path) * pow(10, -3)
+
+            if file_size <= discord_file_limit: # No compression necessary,
+                attachment_path = file_path
+
+                if config.verbose:
+                    logger.info(f'{clip.title} is small enough already! Skipping compression.')
+
+            elif config.enable_compression: # File exceeds limit and compression is enabled
+                if config.verbose:
+                    logger.info(f'Initiating compression of {clip.title}')
+
+                compressed_path = await asyncio.to_thread(
+                    video_utils.compress_video,
+                    video_full_path=file_path,
+                    size_upper_bound=discord_file_limit)
+
+                if compressed_path is False:
+                    logger.fatal('Error compressing video! (Have you installed FFMPEG correctly?)')
+                    exit(1)
+
+                logger.info(f'Successfully compressed {clip.title} to {compressed_path}')
+
+                attachment_path = compressed_path
+
+            attachment = None if attachment_path is None else discord.File(attachment_path)
+
+            archive_channel = self.bot.get_channel(config.archive_channel_id)
+            await archive_channel.send(content=message, file=attachment, suppress_embeds=True)
+
+            if attachment_path is not None and attachment_path is not file_path: # Compression took place
+                if config.keep_compressed_files:
+                    os.remove(file_path)
+                    os.rename(attachment_path, file_path)
+                else:
+                    os.remove(attachment_path)
+
+            await asyncio.to_thread(
+                self.database.update_status,
+                url=clip.url,
+                status="ARCHIVED"
+            )
+
+            self.upload_queue.task_done()

@@ -1,0 +1,6 @@
+discord-py
+ffmpeg-python
+aiohttp
+aiofiles
+requests
+beautifulsoup4

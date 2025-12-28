@@ -1,0 +1,11 @@
+# Ignore personal data
+config.py
+*.db
+.env
+venv/
+.idea/
+
+# Ignore logs
+logs/
+*.log
+*.mbtree

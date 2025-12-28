@@ -1,0 +1,23 @@
+# Discord integration
+token = '' # Your bots secret Discord token
+monitored_channels = [] # channels you want to monitor
+archive_message = '# {title} - {game}\n> was posted {timestamp} by [{author_name}]({author_url}).\n> Watch on [Medal.tv]({url})'
+archive_channel_id = 123456789 # channel you want to send archived clips to
+
+# Clips
+download_path = './clips/'
+naming_scheme = '{title} - {game} - {time}' # Removing time from the naming scheme will cause clips to be overwritten if their names are the same
+
+# Compression
+enable_compression = False
+keep_compressed_files = False # Whether to replace the original clips with their compressed version
+maximum_video_width = 1920 # height will be automatically chosen to keep aspect ratio of original video
+maximum_threads = -1 # Set to -1 to disable throttling
+
+# Database
+database_path = 'archive.db'
+
+# Logging
+disable_logging = False
+log_directory = './logs/'
+verbose = False
