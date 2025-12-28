@@ -46,8 +46,6 @@ database = Database(config.database_path)
 download_queue = asyncio.Queue()
 upload_queue = asyncio.Queue()
 
-synchronized = False
-
 @client.event
 async def on_ready():
     logging.info(f'Logged in as {client.user}')
@@ -96,13 +94,6 @@ async def on_message(message):
 
 async def scan_channel_history():
     await client.wait_until_ready()
-
-    global synchronized
-
-    if synchronized:
-        return
-    else:
-        synchronized = True
 
     for channel_id in config.monitored_channels:
         channel = client.get_channel(channel_id)
