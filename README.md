@@ -62,7 +62,7 @@ to only produce a 720p copy. If you know how to bypass this feel free to open an
 3. [Create a discord bot account](https://discordpy.readthedocs.io/en/stable/discord.html) and copy your token. Make sure to give the bot permissions to read and write
 messages
 4. Create your configuration by renaming `example_config.py` to `config.py` and configuring the variables in it. A 
-minimal configuration requires setting `token ` and `monitored_channels`
+minimal configuration requires setting `token `, `monitored_channels` and `archive_channel`
 5. If you wanna use video compression make sure to install `ffmpeg`. [See also](https://github.com/kkroening/ffmpeg-python/issues/251) 
 6. Run the bot `python discord-bot.py`
 
