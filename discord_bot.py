@@ -14,6 +14,7 @@ from time import gmtime, strftime
 from DownloadWorker import DownloadWorker
 from utils.text_utils import find_link_in_message, sanitize_link
 
+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -90,7 +91,7 @@ async def on_message(message):
         return
 
     logging.info(f'{message.author.name} shared clip: {link}')
-    await download_queue.put(link)
+    await handle_link(link)
 
 async def scan_channel_history():
     await client.wait_until_ready()
@@ -119,15 +120,18 @@ async def scan_channel_history():
                 find_link_in_message(text)
             )
 
-            if not database.clip_exists(link):
-                await download_queue.put(link)
-            elif database.get_status(link) == 'DOWNLOADED':
-                clip = database.get_clip_from_url(link)
-                file_path = database.get_file_path(link)
+            await handle_link(link)
 
-                logging.info(f'{clip.title} is already downloaded! Sending video to archive.')
+async def handle_link(link: str):
+    if not database.clip_exists(link):
+        await download_queue.put(link)
+    elif database.get_status(link) == 'DOWNLOADED':
+        clip = database.get_clip_from_url(link)
+        file_path = database.get_file_path(link)
 
-                await upload_queue.put(Entry(clip, file_path))
+        logging.info(f'{clip.title} is already downloaded! Sending video to archive.')
+
+        await upload_queue.put(Entry(clip, file_path))
 
 if not config.disable_logging:
     discord.utils.setup_logging(level=logging.INFO, root=False)
@@ -141,7 +145,8 @@ async def remove_invalid(interaction: discord.Interaction):
         await interaction.response.send_message('No invalid clips sniffed out :mouse2:', ephemeral=True)
     else:
         await (interaction.response.send_message(
-            f'Deleted **{deleted_count}** invalid clip{'s' if deleted_count > 1 else ''} from the database :wastebasket:'))
+            f'Deleted **{deleted_count}** invalid clip{'s' if deleted_count > 1 else ''} from \
+            the database :wastebasket:'))
 
 @tasks.loop(seconds=10)
 async def update_activity():
@@ -158,3 +163,4 @@ async def update_activity():
     await client.change_presence(activity=activity)
 
 client.run(config.token, log_handler=None)
+
