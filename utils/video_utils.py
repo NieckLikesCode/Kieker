@@ -4,16 +4,14 @@ import os
 import ffmpeg
 
 import config
-from config import maximum_threads
 
-def compress_video(video_full_path, size_upper_bound, two_pass=True, filename_suffix='cps_', verbose=False):
+def compress_video(video_full_path, size_upper_bound, two_pass=True, filename_suffix='cps_'):
     """
     Compress video file to max-supported size.
     :param video_full_path: the video you want to compress.
     :param size_upper_bound: Max video size in KB.
     :param two_pass: Set to True to enable two-pass calculation.
     :param filename_suffix: Add a suffix for new video.
-    :param verbose: Set To True to enable verboe logging
     :return: out_put_name or error
     """
     filename, extension = os.path.splitext(video_full_path)
@@ -91,7 +89,8 @@ def compress_video(video_full_path, size_upper_bound, two_pass=True, filename_su
             # Delete temporary files
             if final_result_path and final_result_path != output_file_name:
                 os.remove(output_file_name)
-                logging.info(f"Removing temporary file: {output_file_name}")
+                if config.verbose:
+                    logging.info(f"Removing temporary file: {output_file_name}")
 
                 return final_result_path
         else:
@@ -100,3 +99,4 @@ def compress_video(video_full_path, size_upper_bound, two_pass=True, filename_su
         print('You do not have ffmpeg installed!', e)
         print('You can install ffmpeg by reading https://github.com/kkroening/ffmpeg-python/issues/251')
         return False
+
