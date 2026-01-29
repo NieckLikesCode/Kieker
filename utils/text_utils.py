@@ -3,22 +3,37 @@ import re
 
 from Clip import Clip
 
-def find_link_in_message(message):
-    words = message.split()
 
-    for word in words:
-        if 'medal.tv' in word:
-            return word
+def find_link_in_message(message):
+    """
+    Finds and returns the first medal.tv clip link in the message.
+    :param message: message you want to filter
+    :return: medal.tv clip link if found, else None
+    """
+    pattern = r"https?://(?:www\.)?medal\.tv/[^\s)]*/clips/[a-zA-Z0-9_-]+(?:/[a-zA-Z0-9_-]+)?"
+
+    match = re.search(pattern, message)
+    if match:
+        return match.group(0)
     return None
 
-# Removes '?invite=...' tracking from urls
 def sanitize_link(link):
+    '''
+    Removes '?invite=...' tracking parameter from link
+    :param link: link to sanitize
+    :return: sanitized link
+    '''
     if '?invite' in link:
         return link[0:link.index('?invite')]
     return link
 
-# Formats placeholder string as specified in config by inserting clip information
 def format_placeholder_by_clip(placeholder: str, clip: Clip):
+    """
+    Formats placeholder string as specified in config by inserting clip information
+    :param placeholder: placeholder string
+    :param clip: clip object
+    :return: formatted placeholder string
+    """
     replacements = {
         'title': clip.title,
         'author_name': clip.author.name,

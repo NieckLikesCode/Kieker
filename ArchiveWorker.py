@@ -17,7 +17,6 @@ class Entry:
     file_path: str
 
 logger = logging.getLogger(__name__)
-discord_file_limit = 10000  # in kB
 
 class ArchiveWorker:
     def __init__(self, upload_queue: Queue, database: Database, bot: discord.Client, verbose: bool):
@@ -43,11 +42,13 @@ class ArchiveWorker:
 
             message = text_utils.format_placeholder_by_clip(config.archive_message, clip)
 
+            archive_channel = self.bot.get_channel(config.archive_channel_id)
             attachment_path = None
 
-            file_size = os.path.getsize(file_path) * pow(10, -3)
+            file_size = os.path.getsize(file_path)
+            maximum_file_size = archive_channel.guild.filesize_limit
 
-            if file_size <= discord_file_limit: # No compression necessary,
+            if file_size <= maximum_file_size: # No compression necessary,
                 attachment_path = file_path
 
                 if config.verbose:
@@ -60,7 +61,7 @@ class ArchiveWorker:
                 compressed_path = await asyncio.to_thread(
                     video_utils.compress_video,
                     video_full_path=file_path,
-                    size_upper_bound=discord_file_limit)
+                    size_upper_bound=maximum_file_size)
 
                 if compressed_path is False:
                     logger.fatal('Error compressing video! (Have you installed FFMPEG correctly?)')

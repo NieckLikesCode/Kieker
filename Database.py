@@ -119,11 +119,12 @@ class Database:
         """
         Reads the clip status from the database
         :param url: url of clip to read
-        :return: status of the clip
+        :return: status of the clip, None is clip doesn't exist
         """
         cursor = self.connection.execute('SELECT status FROM clips WHERE url = ?', (url,))
         row = cursor.fetchone()
-        return row['status']
+
+        return row['status'] if row else None
 
     def get_file_path(self, url):
         """

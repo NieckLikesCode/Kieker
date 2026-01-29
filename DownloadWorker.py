@@ -10,6 +10,7 @@ import config
 from Clip import Clip
 from Database import Database
 from utils import text_utils
+from utils.file_utils import download_asynchronous
 
 logger = logging.getLogger(__name__)
 
@@ -66,14 +67,3 @@ class DownloadWorker:
 
             self.download_queue.task_done()
 
-async def download_asynchronous(url: str, path: str):
-    """
-    Download file from url asynchronously
-    :param url: url to file
-    :param path: target path
-    """
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            async with aiofiles.open(path, mode='wb') as f:
-                async for chunk in response.content.iter_chunked(1024 * 1024):  # 1MB Chunks
-                    await f.write(chunk)

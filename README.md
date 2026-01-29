@@ -2,12 +2,17 @@
 Kieker is a discord bot that helps you download and archive your [Medal.tv](https://medal.tv/) clips.
 
 ## 🎛 Features
-Archiving clips works by:
+Kieker can archive your clips by:
 1. Scanning an existing channel for links and listening for new messages with clips.
 2. Downloading them without a watermark and storing their metadata and file location in a database. 
 3. Posting archived clips to (another) Discord channel.
 
+In addition, the bot provides a download command that can be called either directly as a slash command or via the
+context menu.
+
 ### On uploading local copies and compression
+
+#### Archive messages
 By default, Kieker will also try to attach its local copies of clips to the archive messages to create a mirror 
 and make them accessible to all your friends.
 
@@ -21,6 +26,18 @@ threads that will be used for compression in the config. Rule of thumb for overw
 threads is twice your CPU core count. If you allocate half of the total available threads to compression then your
 CPU will use about 50% of its power to compress the video (e.g. 4 cores → 8 threads, so 4 threads will cause 
 50% usage).
+
+#### Download requests
+
+If a user requests to download a clip via a slash command or the context menu, the following happens:
++ If the clip is still uploaded to the Medal servers, the bot extracts the direct download link without a watermark and 
+responds with it, from where the user can download the file.
++ If the file was deleted from the servers but a local backup exists, the bot first attempts to attach the file to a 
+response. If the maximum file size is exceeded, the file can be uploaded to [Litterbox](https://litterbox.catbox.moe/),
+where it is accessible for one hour and then deleted.
+Since the file is accessible to anyone who has the link or guesses it (see [this project](https://github.com/dootss/catbox-scraper))
+during this time, and since private, unlisted clips can also be downloaded with the bot, the bot requires the user's
+consent once again before doing so.
 
 ## 🔒 Limitations
 
@@ -64,7 +81,7 @@ messages
 4. Create your configuration by renaming `example_config.py` to `config.py` and configuring the variables in it. A 
 minimal configuration requires setting `token `, `monitored_channels` and `archive_channel`
 5. If you wanna use video compression make sure to install `ffmpeg`. [See also](https://github.com/kkroening/ffmpeg-python/issues/251) 
-6. Run the bot `python discord-bot.py`
+6. Run the bot `python DiscordBot.py`
 
 ## 💌 Thank yous
  - [Django](https://github.com/django/django) for their ["slugify"](https://github.com/django/django/blob/3923ebac28672ef4ebfbf2685fbc93206e6c136e/django/utils/text.py#L468C16-L469C5) 
