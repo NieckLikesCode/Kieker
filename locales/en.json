@@ -1,0 +1,24 @@
+{
+  "archive": {
+    "message": "# {title} - {game}\n> was posted {timestamp} by [{author_name}]({author_url}).\n> Watch on [Medal.tv]({url})",
+    "fileTooBig": "The video was too big to upload directly on Discord. You may still access the video via the \"/download\" command or by selecting \"Download Clip\" in the context menu of any message in this guild or by asking the bot maintainer to enable compression."
+  },
+  "downloadRequest": {
+    "uploadAborted": "Upload aborted :sleeping:",
+    "uploadConfirmation": "The clip you want to download no longer appears to be stored on the Medal servers. However, it still exists in my database, from where I can upload it to an external file hosting provider ([Litterbox](https://litterbox.catbox.moe/)). The file would then be accessible for 1 hour and deleted afterwards. In the meantime, however, anyone who has the download link or guesses it can access the file. Would you still like me to upload the file for you?",
+    "uploadFailed": ":x: Unable to upload clip. Please try again later or contact the bot maintainer.",
+    "queueNotification": "Scheduled clip for upload. The link should be ready shortly :mechanic:",
+    "clipInaccessible": "Unfortunately, the specified clip cannot be found directly on the Medal Server, nor is it backed up in the database. :melting_face:"
+  },
+  "removeInvalid": {
+    "deletionConfirmation": "Are you sure you really want to delete all invalid links from the database?",
+    "deletionCanceled": "The deletion process has been canceled :sleeping: ",
+    "rowsEffected": "Deleted **{count}** invalid clip(s) from the database :wastebasket:",
+    "noEffect": "No invalid clips links sniffed out :mouse2:"
+  },
+  "confirmationDialog": {
+    "buttonYes": "Yes",
+    "buttonNo": "No",
+    "timeout": "You took too long to respond, so your request was cancelled. :alarm_clock:"
+  }
+}

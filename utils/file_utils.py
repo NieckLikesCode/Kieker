@@ -6,11 +6,11 @@ import aiohttp
 API_URL = 'https://litterbox.catbox.moe/resources/internals/api.php'
 
 async def upload_file(file_path: str):
-    '''
+    """
     Uploads the specified file asynchronously to Litterbox
     :param file_path: path to the file to upload
     :return: Download link if successful, otherwise None
-    '''
+    """
     if os.path.getsize(file_path) > pow(10, 9):
         raise ValueError('File size exceeds 1 GB')
 

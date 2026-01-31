@@ -6,11 +6,12 @@ from time import strftime, gmtime
 import discord
 from discord.ext import commands, tasks
 
+import ArchiveWorker
+import DownloadWorker
 import config
-from ArchiveWorker import ArchiveWorker, Entry
 from Database import Database
-from DownloadWorker import DownloadWorker
 from utils.text_utils import find_link_in_message, sanitize_link
+
 
 class DiscordBot(commands.Bot):
     def __init__(self):
@@ -22,29 +23,19 @@ class DiscordBot(commands.Bot):
         self.database = Database(config.database_path)
         self.download_queue = asyncio.Queue()
         self.upload_queue = asyncio.Queue()
+        self.queued_links = set()
 
         self.download_worker = None
         self.archive_worker = None
 
+
     async def on_ready(self):
         logging.info(f'Logged in as {self.user} (ID: {self.user.id})')
 
-    async def setup_hook(self):
-        self.download_worker = DownloadWorker(
-            download_queue=self.download_queue,
-            upload_queue=self.upload_queue,
-            download_path=config.download_path,
-            database=self.database,
-            bot=self,
-            verbose=config.verbose
-        )
 
-        self.archive_worker = ArchiveWorker(
-            upload_queue=self.upload_queue,
-            database=self.database,
-            bot=self,
-            verbose=config.verbose
-        )
+    async def setup_hook(self):
+        self.download_worker = DownloadWorker.DownloadWorker(bot=self)
+        self.archive_worker = ArchiveWorker.ArchiveWorker(bot=self)
 
         # Start tasks
         self.loop.create_task(self.scan_channel_history())
@@ -59,6 +50,7 @@ class DiscordBot(commands.Bot):
         await self.load_extension('commands.DownloadClip')
 
         await self.tree.sync()
+
 
     async def on_message(self, message: discord.Message):
 
@@ -75,6 +67,7 @@ class DiscordBot(commands.Bot):
 
         logging.info(f'{message.author.name} shared clip: {link}')
         await self.handle_link(link)
+
 
     async def scan_channel_history(self):
         await self.wait_until_ready()
@@ -105,16 +98,28 @@ class DiscordBot(commands.Bot):
 
                 await self.handle_link(link)
 
+
     async def handle_link(self, link: str):
-        if not self.database.clip_exists(link):
-            await self.download_queue.put(link)
-        elif self.database.get_status(link) == 'DOWNLOADED':
-            clip = self.database.get_clip_from_url(link)
-            file_path = self.database.get_file_path(link)
+        if link in self.queued_links:
+            return
 
-            logging.info(f'{clip.title} is already downloaded! Sending video to archive.')
+        status = self.database.get_status(link)
 
-            await self.upload_queue.put(Entry(clip, file_path))
+        if status == 'ARCHIVED':
+            return
+        else:
+            self.queued_links.add(link)
+
+            if status == 'DOWNLOADED':
+                clip = self.database.get_clip_from_url(link)
+                file_path = self.database.get_file_path(link)
+
+                logging.info(f'{clip.title} is already downloaded! Sending video to archive.')
+
+                await self.upload_queue.put(ArchiveWorker.Entry(clip, file_path))
+            else:
+                await self.download_queue.put(link)
+
 
     @tasks.loop(seconds=10)
     async def update_activity(self):
@@ -129,7 +134,6 @@ class DiscordBot(commands.Bot):
             state=f'{amount_to_download} pending downloads, {amount_to_upload} clips waiting to be uploaded.'
         )
 
-        # self.change_presence statt client.change_presence
         await self.change_presence(activity=activity)
 
     @update_activity.before_loop
@@ -164,3 +168,4 @@ if __name__ == "__main__":
 
     bot = DiscordBot()
     bot.run(config.token, log_handler=None)
+

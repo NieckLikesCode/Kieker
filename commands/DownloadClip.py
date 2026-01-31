@@ -8,6 +8,8 @@ from discord.ext import commands
 import config
 from Clip import Clip
 from DiscordBot import DiscordBot
+from commands.ConfirmationDialog import ConfirmationDialog
+from utils import localization
 from utils.file_utils import upload_file
 from utils.text_utils import sanitize_link, find_link_in_message
 
@@ -17,7 +19,6 @@ async def setup(bot):
 class DownloadClip(commands.Cog):
     def __init__(self, bot: DiscordBot):
         self.bot = bot
-
         self.ctx_menu = app_commands.ContextMenu(
             name="Download Clip",
             callback=self.context_download_callback,
@@ -39,7 +40,7 @@ class DownloadClip(commands.Cog):
         status = self.bot.database.get_status(clip_link)
 
         if clip is not None:
-            await interaction.followup.send(f'[Download link]({clip.content_url})', ephemeral=True)
+            await interaction.followup.send(f'[Download here]({clip.content_url})', ephemeral=True)
         elif status == 'DOWNLOADED' or status == 'ARCHIVED':
             clip_location = self.bot.database.get_file_path(clip_link)
             file_size = os.path.getsize(clip_location)
@@ -49,28 +50,56 @@ class DownloadClip(commands.Cog):
                 await interaction.followup.send(file=discord_file, ephemeral=True)
             else:  # Upload file to Litterbox
 
-                if config.verbose:
-                    logging.info(f'Uploading {clip_link} to Litterbox...')
-
-                confirmation = ConfirmUploadView(interaction)
+                confirmation_dialog = ConfirmationDialog(interaction)
+                confirmation_message = localization.translator.get(
+                    'downloadRequest.uploadConfirmation',
+                    locale=interaction.locale
+                )
 
                 await interaction.followup.send(
-                    content=config.upload_notice,
-                    view=confirmation,
+                    content=confirmation_message,
+                    view=confirmation_dialog,
                     ephemeral=True
                 )
 
-                await confirmation.wait()
-                if confirmation.value is True:
+                await confirmation_dialog.wait()
+
+                if confirmation_dialog.value is True:
+                    logging.info(f'Uploading {clip_link} to Litterbox')
+
+                    working_message = localization.translator.get(
+                        'downloadRequest.queueNotification',
+                        locale=interaction.locale
+                    )
+
+                    await interaction.edit_original_response(content=working_message)
+
                     clip_location = self.bot.database.get_file_path(clip_link)
                     download_link = await upload_file(clip_location)
-                    message = f'[Download link]({download_link})' if download_link is not None else ':x: Unable to upload clip. Please try again later or contact the bot maintainer.'
+
+                    message = None
+
+                    if download_link is None:
+                        message = localization.translator.get('downloadRequest.uploadFailed', locale=interaction.locale)
+                    else:
+                        message = f'[Download here]({download_link})'
+
+                    if config.verbose:
+                        if download_link is not None:
+                            logging.info(f'Successfully uploaded video: {download_link}')
+                        else:
+                            logging.warning(f'Failed to upload video: {clip_link}')
 
                     await interaction.edit_original_response(content=message)
+                else:
+                    abort_message = localization.translator.get('downloadRequest.uploadAborted', locale=interaction.locale)
+                    await interaction.edit_original_response(content=abort_message)
+
         else:
             await interaction.followup.send(
-                'Unfortunately, the specified clip cannot be found directly on the Medal Server, nor is it backed up in the database. :melting_face:',
-                ephemeral=True)
+                content=localization.translator.get('downloadRequest.clipInaccessible', locale=interaction.locale),
+                ephemeral=True
+            )
 
     @app_commands.describe(link='Link to the clip you want to download')
     @app_commands.command(name='download', description='Provides a download link for the specified clip')
@@ -80,36 +109,3 @@ class DownloadClip(commands.Cog):
     async def context_download_callback(self, interaction: discord.Interaction, message: discord.Message):
         await self._process_download(interaction, message.content)
 
-class ConfirmUploadView(discord.ui.View):
-    def __init__(self, interaction: discord.Interaction, timeout=60):
-        super().__init__(timeout=timeout)
-        self.value = None
-        self.original_interaction = interaction
-
-    @discord.ui.button(label=config.button_upload_yes, style=discord.ButtonStyle.green, emoji='✅')
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.original_interaction.user.id:
-            return
-
-        self.value = True
-        for child in self.children: child.disabled = True
-
-        await interaction.response.edit_message(content=config.upload_confirmation, view=None)
-        self.stop()
-
-    @discord.ui.button(label=config.button_upload_no, style=discord.ButtonStyle.red, emoji='❌')
-    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.original_interaction.user.id:
-            return
-
-        self.value = False
-        for child in self.children: child.disabled = True
-
-        await interaction.response.edit_message(content=config.upload_aborted, view=None)
-        self.stop()
-
-    async def on_timeout(self):
-        if self.value is None:
-
-            for child in self.children: child.disabled = True
-            await self.original_interaction.edit_original_response(content=config.timeout_message, view=None)

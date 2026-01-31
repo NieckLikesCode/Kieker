@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from asyncio import Queue
 import os
 from dataclasses import dataclass
 
@@ -8,8 +7,9 @@ import discord
 
 import config
 from Clip import Clip
-from Database import Database
-from utils import text_utils, video_utils
+from DiscordBot import DiscordBot
+from utils import video_utils, localization
+
 
 @dataclass
 class Entry:
@@ -18,12 +18,10 @@ class Entry:
 
 logger = logging.getLogger(__name__)
 
+
 class ArchiveWorker:
-    def __init__(self, upload_queue: Queue, database: Database, bot: discord.Client, verbose: bool):
-        self.upload_queue = upload_queue
-        self.database = database
+    def __init__(self, bot: DiscordBot):
         self.bot = bot
-        self.verbose = verbose
 
     async def start(self):
         """
@@ -32,15 +30,25 @@ class ArchiveWorker:
         await self.bot.wait_until_ready()
 
         while True:
-            archive_entry = await self.upload_queue.get()
+            archive_entry = await self.bot.upload_queue.get()
 
             clip = archive_entry.clip
             file_path = archive_entry.file_path
 
-            if self.verbose:
+            if config.verbose:
                 logger.info(f'Initiating archiving process of {clip.title}')
 
-            message = text_utils.format_placeholder_by_clip(config.archive_message, clip)
+            message = localization.translator.get(
+                key='archive.message',
+                locale=config.archive_locale,
+                title=clip.title,
+                author_name=clip.author.name,
+                author_url=clip.author.link,
+                game=clip.game,
+                time=clip.time,
+                url=clip.url,
+                timestamp=clip.timestamp(),
+            )
 
             archive_channel = self.bot.get_channel(config.archive_channel_id)
             attachment_path = None
@@ -71,7 +79,12 @@ class ArchiveWorker:
 
                 attachment_path = compressed_path
 
-            attachment = None if attachment_path is None else discord.File(attachment_path)
+            attachment = None
+
+            if attachment_path is not None:
+                attachment = discord.File(attachment_path)
+            else:
+                message += '\n-# '+localization.translator.get('archive.fileTooBig', locale=config.archive_locale)
 
             archive_channel = self.bot.get_channel(config.archive_channel_id)
             await archive_channel.send(content=message, file=attachment, suppress_embeds=True)
@@ -84,9 +97,11 @@ class ArchiveWorker:
                     os.remove(attachment_path)
 
             await asyncio.to_thread(
-                self.database.update_status,
+                self.bot.database.update_status,
                 url=clip.url,
                 status="ARCHIVED"
             )
 
-            self.upload_queue.task_done()
+            self.bot.upload_queue.task_done()
+            self.bot.queued_links.remove(clip.url)
+

@@ -1,22 +1,33 @@
-# 💾 Kieker
+# Kieker
 Kieker is a discord bot that helps you download and archive your [Medal.tv](https://medal.tv/) clips.
 
-## 🎛 Features
-Kieker can archive your clips by:
-1. Scanning an existing channel for links and listening for new messages with clips.
-2. Downloading them without a watermark and storing their metadata and file location in a database. 
-3. Posting archived clips to (another) Discord channel.
+## 📋 Features
+- 📚 **Back up your clips**: In the config, you can specify one or more channels to be scanned for links. The bot then goes
+through all chat messages, searches them for medal links, and checks their validity. If the links still work, it scrapes
+all metadata, creates a local backup, and stores all information in a database. To ensure that all your friends can also
+benefit from the backup copies, it logs the archived clips in a text channel. If the video is small enough, it uploads 
+it and attaches it directly to the message. If you also want large clips (usually > 10MB) to be uploaded, the bot can 
+compress them first and then attach them to the message. Kieker also waits for newly posted links and adds them directly
+to the archive queue, so you only have to set up the bot once and then forget about it.
 
-In addition, the bot provides a download command that can be called either directly as a slash command or via the
-context menu.
+
+- 💾 **Download them**: With Kieker, you can quickly download your medal clips directly from Discord
+**without a watermark**. To do this, you can either use the **/download** command and specify the link to the clip, or
+right-click on any message containing a link, and the bot will do the rest. If the clip has been deleted from the
+Medal servers but a local copy still exists in the database, it can be uploaded as an attachment to Discord or 
+temporarily uploaded to [Litterbox](https://litterbox.catbox.moe/). 
+
+
+- 🌍 **Personalized localization**: Whenever you interact with the bot, it adapts its messages to your language if there is
+a valid translation available. For now, only German and English are supported.
 
 ### On uploading local copies and compression
 
 #### Archive messages
-By default, Kieker will also try to attach its local copies of clips to the archive messages to create a mirror 
+By default, Kieker will try to attach its local copies of clips to the archive messages to create a mirror 
 and make them accessible to all your friends.
 
-**If the clip exceeds Discords file size limit (10 MB), it will be skipped by default.** To circumvent this restriction
+**If the clip exceeds Discords file size limit, it will be skipped by default.** To circumvent this restriction
 the bot can be configured to compress the clip using [FFMPEG](https://www.ffmpeg.org/). Thanks to [ESWZY](https://github.com/ESWZY) the
 amount of compression will be chosen just high enough to fit within the limit. If the quality of the source video
 exceeds a certain maximum (1080p by default) it will be resized before compression to improve video quality.
@@ -38,6 +49,17 @@ where it is accessible for one hour and then deleted.
 Since the file is accessible to anyone who has the link or guesses it (see [this project](https://github.com/dootss/catbox-scraper))
 during this time, and since private, unlisted clips can also be downloaded with the bot, the bot requires the user's
 consent once again before doing so.
+
+## 🌍 Localization
+Automatic localization is **enabled by default**. Whenever a user interacts with the bot, it will respond, if possible,
+in the language that the user also uses for a Discord client. Currently, only German and English are supported.
+If you want to customize the bot's responses, simply change the content of the corresponding language in the “locales” 
+folder. Archive messages always use the same language, which is English by default. If you want to change the language,
+you can do so in the config via ```archive_locale```. If you disable localization completely, english will be used for
+all user interactions.
+
+If you want to add a new language, simply duplicate “en.json” and translate the strings. Then rename the file according to the [language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) of the new language (for example, “es.json” for Spanish) and restart the bot. Once you have finished your localization, I would be delighted if you would contribute it to the project. To do so, either create a pull request or simply contact me via email. 
+
 
 ## 🔒 Limitations
 

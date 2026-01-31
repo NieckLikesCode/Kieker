@@ -18,11 +18,11 @@ def find_link_in_message(message):
     return None
 
 def sanitize_link(link):
-    '''
+    """
     Removes '?invite=...' tracking parameter from link
     :param link: link to sanitize
     :return: sanitized link
-    '''
+    """
     if '?invite' in link:
         return link[0:link.index('?invite')]
     return link

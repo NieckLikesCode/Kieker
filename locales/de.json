@@ -1,0 +1,23 @@
+{
+  "archive": {
+    "message": "# {title} - {game}\n> wurde {timestamp} von [{author_name}]({author_url}) gepostet.\n> Auf [Medal.tv]({url}) angucken"
+  },
+  "downloadRequest": {
+    "uploadAborted": "Upload abgebrochen :sleeping:",
+    "uploadConfirmation": "Der Clip, den du runterladen möchtest, scheint nicht mehr auf den Medal Servern zu existieren. Ich habe jedoch eine Sicherheitskopie gemacht, die ich dir bei einem externen Filehoster ([Litterbox](https://litterbox.catbox.moe/)) hochladen kann. Die Datei wäre dort für 1 Stunde zugänglich und wird danach gelöscht. In der Zwischenzeit kann jeder der den Link hat oder ihn errät dein Video herunterladen. Möchtest du trotzdem, dass dir die Datei hochlade?",
+    "uploadFailed": ":x: Fehler beim hochladen des Clips. Bitte versuche es später erneut oder kontaktiere den Bot Betreiber.",
+    "queueNotification": "Der Clip wird hochgeladen. Der Link sollte in Kürze bereit sein :mechanic:",
+    "clipInaccessible": "Der Clip konnte leider weder direkt auf den Medal Servern, noch in der internen Datenbank gefunden werden. :melting_face:"
+  },
+  "removeInvalid": {
+    "deletionConfirmation": "Bist du dir wirklich sicher, dass du alle invaliden Links aus der Datenbank löschen willst?",
+    "deletionCanceled": "Der Löschungsvorgang wurde abgebrochen :sleeping: ",
+    "rowsEffected": "**{count}** invalide Clip(s) aus der Datenbank gelöscht. :wastebasket:",
+    "noEffect": "Konnte keine invaliden Links aufspüren :mouse2:"
+  },
+  "confirmationDialog": {
+    "buttonYes": "Ja",
+    "buttonNo": "Nein",
+    "timeout": "Du hast dir mit beim Antworten zu viel Zeit gelassen. Deine Anfrage wurde abgebrochen :alarm_clock:"
+  }
+}
