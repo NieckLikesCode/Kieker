@@ -100,6 +100,12 @@ class DiscordBot(commands.Bot):
 
 
     async def handle_link(self, link: str):
+        """
+        Either skips the link if it's invalid, puts it into the download queue if not already downloaded or sends it
+        to the archive queue if it's already been dowloaded but never posted
+        :param link: clip link
+        """
+
         if link in self.queued_links:
             return
 

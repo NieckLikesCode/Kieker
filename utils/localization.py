@@ -7,12 +7,37 @@ import discord
 import config
 
 
+def _get_nested_value(data: dict, key_path: str):
+    """
+    Resolves to key_path to a subdirectory and retrieves its value
+    :param data: lookup dict
+    :param key_path: path to value with a dot between subdirectories
+    :return: resolved value
+    """
+    keys = key_path.split('.')
+    current = data
+
+    for k in keys:
+        if isinstance(current, dict) and k in current:
+            current = current[k]
+        else:
+            return None
+
+    return current if isinstance(current, str) else None
+
+
 class Translator:
+
+
     def __init__(self, locales_path='./locales/'):
         self.translations = {}
         self._load_translations(locales_path)
 
     def _load_translations(self, locales_path):
+        """
+        Loads all available locales from locale directory
+        :param locales_path: path to locale directory
+        """
         loaded_count = 0
         for filename in os.listdir(locales_path):
             if filename.endswith(".json"):
@@ -29,32 +54,26 @@ class Translator:
             logging.error('Unable to load any locales. Please check the locales path or clone the repo again.')
             exit(1)
 
-    def _get_nested_value(self, data: dict, key_path: str):
-        keys = key_path.split('.')
-        current = data
-
-        for k in keys:
-            if isinstance(current, dict) and k in current:
-                current = current[k]
-            else:
-                return None
-
-        return current if isinstance(current, str) else None
-
     def get(self, key: str, locale: discord.Locale, **kwargs):
+        """
+        Retrieves a key from a language dict
+        :param key: value to retrieve
+        :param locale: locale to retrieve
+        :return: retrieved value if it exists, None otherwise
+        """
         lang_code = str(locale)[:2]
 
         # Fall back to english if language is not localized or if localization is disabled
-        if lang_code not in self.translations or not config.enable_localization:
+        if lang_code not in self.translations:
             lang_code = 'en'
 
         language_dict = self.translations.get(lang_code)
-        text = self._get_nested_value(language_dict, key)
+        text = _get_nested_value(language_dict, key)
 
         # If string doesn't exist in one language pick its english equivalent
         if text is None:
             default_dict = self.translations.get('en')
-            text = self._get_nested_value(default_dict, key)
+            text = _get_nested_value(default_dict, key)
 
         return text.format(**kwargs)
 

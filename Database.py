@@ -182,5 +182,8 @@ class Database:
         return result[0] if result else 0
 
     def close(self):
+        """
+        Closes the connection to the database
+        """
         if self.connection:
             self.connection.close()

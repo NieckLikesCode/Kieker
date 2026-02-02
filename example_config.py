@@ -5,7 +5,7 @@ monitored_channels = [] # channels you want to monitor
 archive_channel_id = 123456789 # channel you want to send archived clips to
 
 # Localization
-enable_localization = True
+enable_localization = True # Whether to enable automatic localization or not
 archive_locale = 'en' # Language that will be used for archive messages
 
 # Download settings
