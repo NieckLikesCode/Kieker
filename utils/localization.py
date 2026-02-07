@@ -61,11 +61,11 @@ class Translator:
         :param locale: locale to retrieve
         :return: retrieved value if it exists, None otherwise
         """
-        lang_code = str(locale)[:2]
+        lang_code = str(locale)[:2] if config.enable_localization else config.default_locale
 
-        # Fall back to english if language is not localized or if localization is disabled
-        if lang_code not in self.translations or config.enable_localization:
-            lang_code = config.default_locale
+        # Fall back to english if language is not localized
+        if lang_code not in self.translations:
+            lang_code = 'en'
 
         language_dict = self.translations.get(lang_code)
         text = _get_nested_value(language_dict, key)
