@@ -90,7 +90,7 @@ the platform can do, so I would advise against contacting them as not to use up 
 **If you decide to do so anyway, please keep in mind that Kieker is in no way affiliated with Medal.**
 
 Since I have never managed to recover clips myself, I don't know how to cover this case. You may always
-remove all invalid links from the database by using "**/remove_invalid**" and then forcing a rescan by restarting the 
+remove all invalid links from the database by using ```/remove_invalid``` and then forcing a rescan by restarting the 
 program.
 
 #### Quality
