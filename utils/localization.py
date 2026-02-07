@@ -64,8 +64,8 @@ class Translator:
         lang_code = str(locale)[:2]
 
         # Fall back to english if language is not localized or if localization is disabled
-        if lang_code not in self.translations:
-            lang_code = 'en'
+        if lang_code not in self.translations or config.enable_localization:
+            lang_code = config.default_locale
 
         language_dict = self.translations.get(lang_code)
         text = _get_nested_value(language_dict, key)

@@ -6,7 +6,7 @@ archive_channel_id = 123456789 # channel you want to send archived clips to
 
 # Localization
 enable_localization = True # Whether to enable automatic localization or not
-archive_locale = 'en' # Language that will be used for archive messages
+default_locale = 'en' # Language that will be used for archive messages
 
 # Download settings
 download_path = './clips/'

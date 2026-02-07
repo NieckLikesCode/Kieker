@@ -53,12 +53,15 @@ consent once again before doing so.
 ## 🌍 Localization
 Automatic localization is **enabled by default**. Whenever a user interacts with the bot, it will respond, if possible,
 in the language that the user also uses for a Discord client. Currently, only German and English are supported.
-If you want to customize the bot's responses, simply change the content of the corresponding language in the “locales” 
+If you want to customize the bot's responses, simply change the content of the corresponding language in the ```locales``` 
 folder. Archive messages always use the same language, which is English by default. If you want to change the language,
-you can do so in the config via ```archive_locale```. If you disable localization completely, english will be used for
-all user interactions.
+you can do so in the config via ```default_locale```. If you disable localization completely, your default locale
+will be used for all user interactions.
 
-If you want to add a new language, simply duplicate “en.json” and translate the strings. Then rename the file according to the [language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) of the new language (for example, “es.json” for Spanish) and restart the bot. Once you have finished your localization, I would be delighted if you would contribute it to the project. To do so, either create a pull request or simply contact me via email. 
+If you want to add a new language, simply duplicate ```en.json``` and translate the strings. Then rename the file
+according to the [language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) of the new language (for example, ```es.json``` for Spanish) and restart the bot.
+Once you have finished your localization, I would be delighted if you would contribute it to the project. To do so, 
+either create a pull request or simply contact me via email. 
 
 
 ## 🔒 Limitations

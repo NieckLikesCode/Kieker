@@ -40,7 +40,7 @@ class ArchiveWorker:
 
             message = localization.translator.get(
                 key='archive.message',
-                locale=config.archive_locale,
+                locale=config.default_locale,
                 title=clip.title,
                 author_name=clip.author.name,
                 author_url=clip.author.link,
@@ -84,7 +84,7 @@ class ArchiveWorker:
             if attachment_path is not None:
                 attachment = discord.File(attachment_path)
             else:
-                message += '\n-# '+localization.translator.get('archive.fileTooBig', locale=config.archive_locale)
+                message += '\n-# '+localization.translator.get('archive.fileTooBig', locale=config.default_locale)
 
             archive_channel = self.bot.get_channel(config.archive_channel_id)
             await archive_channel.send(content=message, file=attachment, suppress_embeds=True)
