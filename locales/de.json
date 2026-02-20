@@ -1,6 +1,7 @@
 {
   "archive": {
-    "message": "# {title} - {game}\n> wurde {timestamp} von [{author_name}]({author_url}) gepostet.\n> Auf [Medal.tv]({url}) angucken"
+    "message": "# {title} - {game}\n> wurde {timestamp} von [{author_name}]({author_url}) gepostet.\n> Auf [Medal.tv]({url}) angucken",
+    "fileTooBig": "Dieses Video ist zu groß, um es direkt auf Discord hochzuladen. Du kannst auf das Video jedoch über den \"/download\" Befehl herunterladen (auch über das Kontext-Menü anwendbar) oder den Bot Betreiber bitten Video Kompression zu aktivieren."
   },
   "downloadRequest": {
     "uploadAborted": "Upload abgebrochen :sleeping:",
