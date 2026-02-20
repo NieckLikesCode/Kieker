@@ -69,7 +69,7 @@ class ArchiveWorker:
                 compressed_path = await asyncio.to_thread(
                     video_utils.compress_video,
                     video_full_path=file_path,
-                    size_upper_bound=maximum_file_size)
+                    size_upper_bound=maximum_file_size/1024)
 
                 if compressed_path is False:
                     logger.fatal('Error compressing video! (Have you installed FFMPEG correctly?)')
