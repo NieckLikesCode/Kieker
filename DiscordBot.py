@@ -8,7 +8,7 @@ from discord.ext import commands, tasks
 
 import ArchiveWorker
 import DownloadWorker
-import config
+import settings
 from Database import Database
 from utils.text_utils import find_link_in_message, sanitize_link
 
@@ -20,7 +20,7 @@ class DiscordBot(commands.Bot):
 
         super().__init__(intents=intents, command_prefix='!')
 
-        self.database = Database(config.database_path)
+        self.database = Database(settings.database_path)
         self.download_queue = asyncio.Queue()
         self.upload_queue = asyncio.Queue()
         self.queued_links = set()
@@ -54,7 +54,7 @@ class DiscordBot(commands.Bot):
 
     async def on_message(self, message: discord.Message):
 
-        if message.channel.id not in config.monitored_channels:
+        if message.channel.id not in settings.monitored_channels:
             return
 
         if message.author == self.user:
@@ -72,7 +72,7 @@ class DiscordBot(commands.Bot):
     async def scan_channel_history(self):
         await self.wait_until_ready()
 
-        for channel_id in config.monitored_channels:
+        for channel_id in settings.monitored_channels:
             channel = self.get_channel(channel_id)
 
             if not channel:
@@ -149,16 +149,16 @@ class DiscordBot(commands.Bot):
 
 if __name__ == "__main__":
     # Create log directory
-    if not os.path.isdir(config.log_directory):
-        os.mkdir(config.log_directory)
+    if not os.path.isdir(settings.log_directory):
+        os.mkdir(settings.log_directory)
 
     # Create download directory
-    if not os.path.isdir(config.download_path):
-        os.mkdir(config.download_path)
+    if not os.path.isdir(settings.download_path):
+        os.mkdir(settings.download_path)
 
     logging.basicConfig(
         level=logging.INFO,
-        filename=f'{config.log_directory}/{strftime("%Y-%m-%d at %H %M %S", gmtime())}.log',
+        filename=f'{settings.log_directory}/{strftime("%Y-%m-%d at %H %M %S", gmtime())}.log',
         filemode='a',
         encoding='utf-8',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -169,9 +169,9 @@ if __name__ == "__main__":
     console.setLevel(logging.INFO)
     logging.getLogger('').addHandler(console)
 
-    if not config.disable_logging:
+    if not settings.disable_logging:
         discord.utils.setup_logging(level=logging.INFO, root=False)
 
     bot = DiscordBot()
-    bot.run(config.token, log_handler=None)
+    bot.run(settings.token, log_handler=None)
 

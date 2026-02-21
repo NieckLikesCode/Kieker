@@ -3,7 +3,7 @@ import logging
 import os
 import ffmpeg
 
-import config
+import settings
 
 def compress_video(video_full_path, size_upper_bound, two_pass=True, filename_suffix='cps_'):
     """
@@ -61,11 +61,11 @@ def compress_video(video_full_path, size_upper_bound, two_pass=True, filename_su
             return None
 
         additional_args = {
-            'vf': f"scale='min({config.maximum_video_width},iw)':-2"
+            'vf': f"scale='min({settings.maximum_video_width},iw)':-2"
         }
 
-        if config.maximum_threads != -1:
-            additional_args['threads'] = config.maximum_threads
+        if settings.maximum_threads != -1:
+            additional_args['threads'] = settings.maximum_threads
 
         i = ffmpeg.input(video_full_path)
 
@@ -89,7 +89,7 @@ def compress_video(video_full_path, size_upper_bound, two_pass=True, filename_su
             # Delete temporary files
             if final_result_path and final_result_path != output_file_name:
                 os.remove(output_file_name)
-                if config.verbose:
+                if settings.verbose:
                     logging.info(f"Removing temporary file: {output_file_name}")
 
                 return final_result_path

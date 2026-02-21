@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import config
+import settings
 from Clip import Clip
 from DiscordBot import DiscordBot
 from commands.ConfirmationDialog import ConfirmationDialog
@@ -84,7 +84,7 @@ class DownloadClip(commands.Cog):
                     else:
                         message = f'[Download here]({download_link})'
 
-                    if config.verbose:
+                    if settings.verbose:
                         if download_link is not None:
                             logging.info(f'Successfully uploaded video: {download_link}')
                         else:

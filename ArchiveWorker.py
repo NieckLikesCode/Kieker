@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 import discord
 
-import config
+import settings
 from Clip import Clip
 from DiscordBot import DiscordBot
 from utils import video_utils, localization
@@ -35,12 +35,12 @@ class ArchiveWorker:
             clip = archive_entry.clip
             file_path = archive_entry.file_path
 
-            if config.verbose:
+            if settings.verbose:
                 logger.info(f'Initiating archiving process of {clip.title}')
 
             message = localization.translator.get(
                 key='archive.message',
-                locale=config.default_locale,
+                locale=settings.default_locale,
                 title=clip.title,
                 author_name=clip.author.name,
                 author_url=clip.author.link,
@@ -50,7 +50,7 @@ class ArchiveWorker:
                 timestamp=clip.timestamp(),
             )
 
-            archive_channel = self.bot.get_channel(config.archive_channel_id)
+            archive_channel = self.bot.get_channel(settings.archive_channel_id)
             attachment_path = None
 
             file_size = os.path.getsize(file_path)
@@ -59,11 +59,11 @@ class ArchiveWorker:
             if file_size <= maximum_file_size: # No compression necessary,
                 attachment_path = file_path
 
-                if config.verbose:
+                if settings.verbose:
                     logger.info(f'{clip.title} is small enough already! Skipping compression.')
 
-            elif config.enable_compression: # File exceeds limit and compression is enabled
-                if config.verbose:
+            elif settings.enable_compression: # File exceeds limit and compression is enabled
+                if settings.verbose:
                     logger.info(f'Initiating compression of {clip.title}')
 
                 compressed_path = await asyncio.to_thread(
@@ -84,13 +84,13 @@ class ArchiveWorker:
             if attachment_path is not None:
                 attachment = discord.File(attachment_path)
             else:
-                message += '\n-# '+localization.translator.get('archive.fileTooBig', locale=config.default_locale)
+                message += '\n-# '+localization.translator.get('archive.fileTooBig', locale=settings.default_locale)
 
-            archive_channel = self.bot.get_channel(config.archive_channel_id)
+            archive_channel = self.bot.get_channel(settings.archive_channel_id)
             await archive_channel.send(content=message, file=attachment, suppress_embeds=True)
 
             if attachment_path is not None and attachment_path is not file_path: # Compression took place
-                if config.keep_compressed_files:
+                if settings.keep_compressed_files:
                     os.remove(file_path)
                     os.rename(attachment_path, file_path)
                 else:

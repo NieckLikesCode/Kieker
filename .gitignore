@@ -1,9 +1,10 @@
 # Ignore personal data
-config.py
 *.db
 .env
+config.py
 venv/
 .idea/
+clips/
 
 # Ignore logs
 logs/

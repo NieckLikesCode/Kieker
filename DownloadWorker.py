@@ -3,7 +3,7 @@ import logging
 import time
 
 import ArchiveWorker
-import config
+import settings
 from Clip import Clip
 import DiscordBot
 from utils import text_utils
@@ -25,7 +25,7 @@ class DownloadWorker:
         while True:
             url = await self.bot.download_queue.get()
 
-            if config.verbose:
+            if settings.verbose:
                 logger.info(f'Retrieving metadata from clip {url}')
 
             clip = Clip.from_url(url)
@@ -36,11 +36,11 @@ class DownloadWorker:
                 self.bot.database.add_invalid_link(url)
                 continue
 
-            filename = text_utils.format_placeholder_by_clip(config.naming_scheme, clip)
+            filename = text_utils.format_placeholder_by_clip(settings.naming_scheme, clip)
 
-            path = config.download_path + text_utils.slugify(filename) + '.mp4'
+            path = settings.download_path + text_utils.slugify(filename) + '.mp4'
 
-            if config.verbose:
+            if settings.verbose:
                 logger.info(f'Initiating download of {filename} from {clip.content_url}')
 
             start_time = time.time()

@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 
-import config
+import settings
 from Clip import Clip
 from Clip import Uploader
 
@@ -98,7 +98,7 @@ class Database:
             self.connection.execute(query, (url, 'INVALID', '', '', '', '', '', ''))
             self.connection.commit()
 
-            if config.verbose:
+            if settings.verbose:
                 logger.info(f'Successfully wrote invalid link {url}')
             return True
 

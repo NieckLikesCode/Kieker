@@ -4,7 +4,7 @@ import os
 
 import discord
 
-import config
+import settings
 
 
 def _get_nested_value(data: dict, key_path: str):
@@ -61,7 +61,7 @@ class Translator:
         :param locale: locale to retrieve
         :return: retrieved value if it exists, None otherwise
         """
-        lang_code = str(locale)[:2] if config.enable_localization else config.default_locale
+        lang_code = str(locale)[:2] if settings.enable_localization else settings.default_locale
 
         # Fall back to english if language is not localized
         if lang_code not in self.translations:
